@@ -3,6 +3,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
+const path = require('path');
 
 // Import the Models
 const Expense = require('./models/Expense');
@@ -13,6 +14,7 @@ const app = express();
 // Middleware
 app.use(express.json());
 app.use(cors());
+app.use(express.static(path.join(__dirname, "public")));
 
 // Database Connection
 mongoose.connect(process.env.MONGO_URI)
@@ -254,6 +256,11 @@ app.post('/api/settings/categories', authenticateToken, async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: 'Error adding category', error });
   }
+});
+
+// Serve frontend for any unknown route (SPA support)
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
 const PORT = process.env.PORT || 5003;
